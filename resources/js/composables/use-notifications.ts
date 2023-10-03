@@ -1,5 +1,6 @@
-import {computed, reactive} from "vue";
+import { computed, reactive, watch, watchEffect } from "vue";
 import {randomString} from "../utils";
+import { usePage } from "@inertiajs/vue3";
 
 export type DefaultNotificationType = 'positive' | 'negative' | 'neutral'
 export interface DefaultNotification<Type = DefaultNotificationType> {
@@ -17,6 +18,34 @@ export interface INotification<Value = DefaultNotification> {
 
 const notifications = reactive<Record<string, Array<INotification<any>>>>({})
 const displayed = reactive<Array<string>>([])
+
+export function watchNotifications(key: string = 'notifications') {
+  type R = Record<string, Array<INotification<any>>>
+
+  const notifications = computed(() => (usePage().props[key] || {}) as R)
+  
+  watchEffect(() => {
+    Object.keys(notifications.value).forEach(stack => {
+      notifications.value[stack].forEach(notification => {
+        pushNotification(stack, notification)
+      })
+    })
+  })
+}
+
+function pushNotification<Value = DefaultNotification>(stack: string, notification: INotification<Value>) {
+  if (! notifications.hasOwnProperty(stack)) {
+    notifications[stack] = []
+  }
+
+  const idx = displayed.findIndex(it => it === notification.id)
+  if (idx >= 0) {
+    return
+  }
+
+  displayed.push(notification.id)
+  notifications[stack].unshift(notification)
+}
 
 export function useNotifications<Value = DefaultNotification>(stack: string = 'default') {
   if (! notifications.hasOwnProperty(stack)) {
