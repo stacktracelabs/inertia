@@ -8,9 +8,10 @@ if output="$(git status --porcelain)" && [ -n "$output" ]; then
 fi
 
 
-VERSION=$(npm version $1)
+VERSION=$(npm version $1 --no-git-tag-version)
 npm run build
-git push && git push --tags
+git commit -m "bump @stacktrace/inertia $VERSION" package.json package-lock.json
+git push
 
 npm pack && npm publish --registry https://registry.npmjs.org/ --access public && rm -f *.tgz
 
