@@ -23,7 +23,7 @@ export function watchNotifications(key: string = 'notifications') {
   type R = Record<string, Array<INotification<any>>>
 
   const notifications = computed(() => (usePage().props[key] || {}) as R)
-  
+
   watchEffect(() => {
     Object.keys(notifications.value).forEach(stack => {
       notifications.value[stack].forEach(notification => {
@@ -85,6 +85,6 @@ export function useNotifications<Value = DefaultNotification>(stack: string = 'd
   }
 
   return {
-    notify, dismiss, push, notifications: computed(() => notifications[stack]),
+    notify, dismiss, push, notifications: computed<Array<INotification<Value>>>(() => notifications[stack]),
   }
 }
