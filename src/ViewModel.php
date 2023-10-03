@@ -1,7 +1,7 @@
 <?php
 
 
-namespace StackTrace\Inertia\View;
+namespace StackTrace\Inertia;
 
 
 use Illuminate\Contracts\Support\Arrayable;
@@ -59,11 +59,6 @@ abstract class ViewModel implements Arrayable, \JsonSerializable
         }
 
         return $value;
-    }
-
-    public static function render(array $value): static
-    {
-        return new ArrayViewModel($value);
     }
 
     public static function make(): static

@@ -1,10 +1,10 @@
 <?php
 
-use StackTrace\Inertia\View\ArrayViewModel;
-use StackTrace\Inertia\View\ViewModel;
+use StackTrace\Inertia\View\Models\ArrayViewModel;
+use StackTrace\Inertia\ViewModel;
 
 function model(array $model): ViewModel {
-    return new ArrayViewModel($model);
+    return ArrayViewModel::make($model);
 }
 
 it('should render to view', function () {

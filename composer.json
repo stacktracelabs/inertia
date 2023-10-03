@@ -44,7 +44,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Store\\Storefront\\StorefrontServiceProvider"
+                "StackTrace\\Inertia\\ServiceProvider"
             ]
         },
         "branch-alias": {

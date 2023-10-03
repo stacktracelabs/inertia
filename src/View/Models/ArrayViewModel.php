@@ -1,8 +1,10 @@
 <?php
 
 
-namespace StackTrace\Inertia\View;
+namespace StackTrace\Inertia\View\Models;
 
+
+use StackTrace\Inertia\ViewModel;
 
 class ArrayViewModel extends ViewModel
 {
