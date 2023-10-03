@@ -7,10 +7,11 @@ use Inertia\Testing\AssertableInertia as Assert;
 use StackTrace\Inertia\Notification;
 use StackTrace\Inertia\NotificationManager;
 use StackTrace\Inertia\Tests\Stubs\ExampleMiddleware;
+use function Pest\Laravel\followingRedirects;
 use function Pest\Laravel\get;
 
 it('should push notification to the stack', function () {
-    $manager = new NotificationManager();
+    $manager = new NotificationManager;
 
     expect($manager->all())->toBeEmpty();
 
@@ -43,12 +44,12 @@ it('should format notification to array', function () {
 });
 
 it('should add notifications to the response', function () {
-    Notification::positive('Serus')->push();
-
     Route::middleware([StartSession::class, ExampleMiddleware::class])
-        ->get('/', Controller::class)
-        ->defaults('component', 'Home')
-        ->defaults('props', []);
+        ->get('/', function () {
+            Notification::positive('Serus')->push();
+
+            return \Inertia\Inertia::render('Home');
+        });
 
     get('/')->assertInertia(function (Assert $page) {
         $page
@@ -62,4 +63,33 @@ it('should add notifications to the response', function () {
                 ->etc()
         );
     });
+});
+
+it('should retain notifications when redirected', function () {
+    Route::middleware([StartSession::class, ExampleMiddleware::class])
+        ->get('/', function () {
+            Notification::positive('Serus')->push();
+
+            return redirect()->to('/redirect');
+        });
+
+    Route::middleware([StartSession::class, ExampleMiddleware::class])
+        ->get('/redirect', Controller::class)
+        ->defaults('component', 'Home')
+        ->defaults('props', []);
+
+    followingRedirects()->get('/')->assertInertia(function (Assert $page) {
+        $page
+            ->has('notifications.default', 1)
+            ->has('notifications.default.0', fn (Assert $notification) => $notification
+                ->has('id')
+                ->where('value.type', 'positive')
+                ->where('value.title', 'Serus')
+                ->has('timestamp')
+                ->where('autoDismiss', true)
+                ->etc()
+            );
+    });
+
+    get('/redirect')->assertInertia(fn (Assert $page) => $page->where('notifications', []));
 });

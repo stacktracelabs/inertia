@@ -5,6 +5,7 @@ namespace StackTrace\Inertia;
 
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 class NotificationStack
@@ -13,6 +14,10 @@ class NotificationStack
      * Notifications in the stack.
      */
     protected array $notifications = [];
+
+    public function __construct(
+        protected string $name,
+    ) { }
 
     /**
      * Push a notification to the stack.
@@ -25,6 +30,10 @@ class NotificationStack
             'timestamp' => now()->timestamp,
             'autoDismiss' => $autoDismiss,
         ];
+
+        $notifications = Session::get('notifications', []);
+        $notifications[$this->name] = $this->all();
+        Session::flash('notifications', $notifications);
 
         return $this;
     }

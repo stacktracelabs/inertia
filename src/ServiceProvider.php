@@ -4,9 +4,9 @@
 namespace StackTrace\Inertia;
 
 
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\ServiceProvider as Provider;
 use Inertia\Inertia;
-use StackTrace\Inertia\Facades\Notifications;
 
 class ServiceProvider extends Provider
 {
@@ -18,7 +18,7 @@ class ServiceProvider extends Provider
     public function boot()
     {
         $this->app->booted(function () {
-            Inertia::share('notifications', fn () => Notifications::all());
+            Inertia::share('notifications', fn () => Session::get('notifications', (object) []));
         });
     }
 }

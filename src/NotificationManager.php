@@ -4,6 +4,7 @@
 namespace StackTrace\Inertia;
 
 
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Arr;
 
 class NotificationManager
@@ -30,7 +31,7 @@ class NotificationManager
      */
     protected function createStack(string $name): NotificationStack
     {
-        return new NotificationStack();
+        return new NotificationStack($name);
     }
 
     /**
