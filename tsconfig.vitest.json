@@ -1,0 +1,13 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "resources/js/**/*", "resources/js/**/*.vue"],
+  "compilerOptions": {
+    "lib": [],
+    "types": ["node", "jsdom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./resources/js/*"]
+    }
+  },
+  "exclude": []
+}

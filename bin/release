@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+if output="$(git status --porcelain)" && [ -n "$output" ]; then
+    echo "Git is not clean. Commit your changes first."
+    exit 1
+fi
+
+
+VERSION=$(npm version $1)
+npm run build
+
+git commit -m "bump $VERSION" package.json package-lock.json
+git push && git push --tags
+
+npm pack && npm publish --access public && rm -f *.tgz
+
+echo "🚀 @stacktrace/inertia $VERSION released!"
