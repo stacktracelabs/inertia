@@ -65,4 +65,9 @@ abstract class ViewModel implements Arrayable, \JsonSerializable
     {
         return new static(...func_get_args());
     }
+
+    public static function collect(array|Collection $items): Collection
+    {
+        return Collection::wrap($items)->mapInto(static::class)->values();
+    }
 }
