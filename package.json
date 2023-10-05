@@ -1,6 +1,6 @@
 {
   "name": "@stacktrace/inertia",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Companion package for all our Inertia projects.",
   "main": "./dist/inertia.umd.js",
   "module": "./dist/inertia.es.js",
