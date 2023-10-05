@@ -1,4 +1,4 @@
-import { computed, reactive, watch, watchEffect } from "vue";
+import { computed, reactive, watchEffect } from "vue";
 import {randomString} from "../utils";
 import { usePage } from "@inertiajs/vue3";
 
@@ -74,6 +74,12 @@ export function useNotifications<Value = DefaultNotification>(stack: string = 'd
     remove(notification.id)
   }
 
+  const clear = () => {
+    notifications[stack]
+      .map(it => it.id)
+      .forEach(it => remove(it))
+  }
+
   const notify = (notification: INotification<Value>) => {
     const idx = displayed.findIndex(it => it === notification.id)
     if (idx >= 0) {
@@ -85,6 +91,6 @@ export function useNotifications<Value = DefaultNotification>(stack: string = 'd
   }
 
   return {
-    notify, dismiss, push, notifications: computed<Array<INotification<Value>>>(() => notifications[stack]),
+    notify, dismiss, clear, push, notifications: computed<Array<INotification<Value>>>(() => notifications[stack]),
   }
 }
