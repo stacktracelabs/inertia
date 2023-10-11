@@ -17,3 +17,8 @@ export interface IPaginator<T> {
   to: number
   total: number
 }
+
+export interface IViewComponent {
+  name: string
+  props: Record<string, any>
+}
