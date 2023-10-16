@@ -20,7 +20,6 @@ class Notification implements Arrayable
     {
         return [
             'type' => $this->type,
-            'title' => $this->type,
             'title' => $this->title,
             'content' => $this->content,
             ...$this->extra,
