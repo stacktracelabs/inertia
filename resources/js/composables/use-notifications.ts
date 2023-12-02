@@ -19,15 +19,36 @@ export interface INotification<Value = DefaultNotification> {
 const notifications = reactive<Record<string, Array<INotification<any>>>>({})
 const displayed = reactive<Array<string>>([])
 
-export function watchNotifications(key: string = 'notifications') {
-  type R = Record<string, Array<INotification<any>>>
+export type WatchListener = (notification: INotification) => void
 
-  const notifications = computed(() => (usePage().props[key] || {}) as R)
+export type WatchOptions<T = any> = {
+  onNotification?: (notification: INotification<T>) => void
+  key?: string
+  pushToStack?: boolean
+}
+
+const watchListeners: Array<WatchListener> = []
+
+export function watchNotifications<T = any>(options: Partial<WatchOptions> = {}) {
+  const opts = Object.assign({
+    key: 'notifications',
+    pushToStack: true,
+  }, options)
+
+  type R = Record<string, Array<INotification<T>>>
+
+  const notifications = computed(() => (usePage().props[opts.key] || {}) as R)
+
+  if (opts.onNotification) {
+    watchListeners.push(opts.onNotification)
+  }
 
   watchEffect(() => {
     Object.keys(notifications.value).forEach(stack => {
       notifications.value[stack].forEach(notification => {
-        pushNotification(stack, notification)
+        if (opts.pushToStack) {
+          pushNotification(stack, notification)
+        }
       })
     })
   })
@@ -45,6 +66,8 @@ function pushNotification<Value = DefaultNotification>(stack: string, notificati
 
   displayed.push(notification.id)
   notifications[stack].unshift(notification)
+
+  watchListeners.forEach(it => it(notification as any))
 }
 
 export function useNotifications<Value = DefaultNotification>(stack: string = 'default') {
