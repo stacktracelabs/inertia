@@ -19,39 +19,37 @@ export interface INotification<Value = DefaultNotification> {
 const notifications = reactive<Record<string, Array<INotification<any>>>>({})
 const displayed = reactive<Array<string>>([])
 
-export type WatchListener = (notification: INotification) => void
-
-export type WatchOptions<T = any> = {
-  onNotification?: (notification: INotification<T>) => void
-  key?: string
-  pushToStack?: boolean
-}
+export type WatchListener<T = any> = (notification: INotification<T>, dismiss: () => void) => void
 
 const watchListeners: Array<WatchListener> = []
 
-export function watchNotifications<T = any>(options: Partial<WatchOptions> = {}) {
-  const opts = Object.assign({
-    key: 'notifications',
-    pushToStack: true,
-  }, options)
+export function watchForNotifications<T>(listener: WatchListener<T>) {
+  watchListeners.push(listener)
+}
 
+export function watchBackendNotifications<T = any>(key: string = 'notifications') {
   type R = Record<string, Array<INotification<T>>>
 
-  const notifications = computed(() => (usePage().props[opts.key] || {}) as R)
-
-  if (opts.onNotification) {
-    watchListeners.push(opts.onNotification)
-  }
+  const notifications = computed(() => (usePage().props[key] || {}) as R)
 
   watchEffect(() => {
     Object.keys(notifications.value).forEach(stack => {
       notifications.value[stack].forEach(notification => {
-        if (opts.pushToStack) {
-          pushNotification(stack, notification)
-        }
+        pushNotification(stack, notification)
       })
     })
   })
+}
+
+const removeFromStack = (stack: string, id: string) => {
+  const idx = notifications[stack].findIndex(it => it.id === id)
+  if (idx >= 0) {
+    notifications[stack].splice(idx, 1)
+  }
+}
+
+const dismissFromStack = (stack: string, notification: INotification) => {
+  removeFromStack(stack, notification.id)
 }
 
 function pushNotification<Value = DefaultNotification>(stack: string, notification: INotification<Value>) {
@@ -67,7 +65,7 @@ function pushNotification<Value = DefaultNotification>(stack: string, notificati
   displayed.push(notification.id)
   notifications[stack].unshift(notification)
 
-  watchListeners.forEach(it => it(notification as any))
+  watchListeners.forEach(it => it(notification as any, () => dismissFromStack(stack, notification.id as any)))
 }
 
 export function useNotifications<Value = DefaultNotification>(stack: string = 'default') {
