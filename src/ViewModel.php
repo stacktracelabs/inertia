@@ -13,18 +13,31 @@ use function collect;
 abstract class ViewModel implements Arrayable, \JsonSerializable
 {
     /**
+     * The format used for the properties.
+     */
+    protected static ?string $format = null;
+
+    /**
      * Format data to view.
      */
     public abstract function toView(): array;
 
+    /**
+     * Set the one format for json and view responses..
+     */
+    public static function alwaysFormatWith(string $format): void
+    {
+        static::$format = $format;
+    }
+
     public function jsonSerialize(): mixed
     {
-        return $this->prepareValue($this->toView(), 'snake');
+        return $this->prepareValue($this->toView(), static::$format ?: 'snake');
     }
 
     public function toArray()
     {
-        return $this->prepareValue($this->toView(), 'camel');
+        return $this->prepareValue($this->toView(), static::$format ?: 'camel');
     }
 
     protected function formatKey(string $key, $case = 'snake'): string
